@@ -9,6 +9,7 @@ import {
   redis,
   sendgrid,
 } from 'configurations/env.config';
+import { CommentModule } from 'modules/comment/comment.module';
 import { HealthCheckModule } from 'modules/healthCheck/health.check.module';
 import { NotificationModule } from 'modules/notification/notification.module';
 import { RedisClientOptions } from 'redis';
@@ -20,6 +21,7 @@ import { PrismaModule } from 'utils/prisma';
   imports: [
     HealthCheckModule,
     NotificationModule,
+    CommentModule,
     ConfigModule.forRoot({
       isGlobal: true,
       load: [auth0, sendgrid, cryptojs, firebase, redis],

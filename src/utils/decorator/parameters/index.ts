@@ -2,6 +2,7 @@ import { ExecutionContext, createParamDecorator } from '@nestjs/common';
 import { ValidationArguments, registerDecorator } from 'class-validator';
 import { Request } from 'express';
 import { env } from 'process';
+import { Socket } from 'socket.io';
 
 type DefaultValueOptions = {
   fromEnv?: boolean;
@@ -79,5 +80,26 @@ export const User = createParamDecorator(
   (data: unknown, ctx: ExecutionContext) => {
     const request = ctx.switchToHttp().getRequest() as Request;
     return request.user;
+  },
+);
+
+export const Course = createParamDecorator(
+  (data: unknown, ctx: ExecutionContext) => {
+    const request = ctx.switchToHttp().getRequest() as Request;
+    return request.course;
+  },
+);
+
+export const SocketUser = createParamDecorator(
+  (data: unknown, ctx: ExecutionContext) => {
+    const request = ctx.switchToWs().getClient() as Socket;
+    return request.user;
+  },
+);
+
+export const SocketCourse = createParamDecorator(
+  (data: unknown, ctx: ExecutionContext) => {
+    const request = ctx.switchToWs().getClient() as Socket;
+    return request.course;
   },
 );

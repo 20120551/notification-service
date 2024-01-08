@@ -11,7 +11,7 @@ datasource db {
 model User {
   id                 String              @id
   name               String
-  email              String?
+  email              String              @unique
   picture            String
   userCourses        UserCourse[]
   gradeReviews       GradeReview[]
@@ -97,6 +97,8 @@ model GradeType {
   desc             String
   type             SupportedGradeType?
   status           GradeStatus
+  created_at       DateTime            @default(now())
+  updated_at       DateTime            @default(now())
   parentId         String?             @map("parent_id")
   parent           GradeType?          @relation(name: "grade_sub_type", fields: [parentId], references: [id])
   gradeStructure   GradeStructure      @relation(fields: [gradeStructureId], references: [id], onDelete: Cascade)
@@ -111,6 +113,7 @@ model UserCourseGrade {
   gradeTypeId  String        @map("grade_type_id")
   gradeType    GradeType     @relation(fields: [gradeTypeId], references: [id], onDelete: Cascade)
   studentId    String        @map("student_id")
+  courseId     String        @map("course_id")
   point        Float
   gradeReviews GradeReview[]
 

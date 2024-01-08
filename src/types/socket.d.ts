@@ -1,7 +1,7 @@
 import { UserResponse, CourseResponse } from 'guards';
 
-declare module '@types/express-serve-static-core' {
-  interface Request {
+declare module 'socket.io' {
+  interface Socket {
     user?: UserResponse;
     course?: CourseResponse;
   }
