@@ -1,6 +1,11 @@
 import { Module } from '@nestjs/common';
 import { CommentGateway } from './gateways';
-import { IJwtService, JwtService } from './services';
+import {
+  CommentService,
+  ICommentService,
+  IJwtService,
+  JwtService,
+} from './services';
 
 @Module({
   providers: [
@@ -8,6 +13,10 @@ import { IJwtService, JwtService } from './services';
     {
       provide: IJwtService,
       useClass: JwtService,
+    },
+    {
+      provide: ICommentService,
+      useClass: CommentService,
     },
   ],
 })

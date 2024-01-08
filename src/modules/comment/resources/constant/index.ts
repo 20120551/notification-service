@@ -1,2 +1,4 @@
 export const GET_COMMENTS = 'GET_COMMENTS';
+export const COMMENTS_GOT = 'COMMENTS_GOT';
 export const CREATE_COMMENT = 'CREATE_COMMENT';
+export const COMMENT_CREATED = 'COMMENT_CREATED';

@@ -4,11 +4,11 @@ import {
   IFirebaseMessageService,
 } from 'utils/firebase';
 import BPromise from 'bluebird';
-import { GradeStructureFinalizedEvent } from './events';
 import { DocumentData } from 'firebase-admin/firestore';
 import { isEmpty } from 'lodash';
 import { UserTokenResponse } from 'modules/notification/resources/response';
 import { PrismaService } from 'utils/prisma';
+import { NotificationTemplate } from './events';
 
 const subscriber = async (app: INestApplication) => {
   const firestoreService = app.get<IFirebaseFireStoreService>(
@@ -32,7 +32,7 @@ const subscriber = async (app: INestApplication) => {
     async (data: DocumentData[]) => {
       await BPromise.map(
         data,
-        async (event: GradeStructureFinalizedEvent & { id: string }) => {
+        async (event: NotificationTemplate & { id: string }) => {
           const { recipientIds, isPublished, ...payload } = event;
           if (isEmpty(recipientIds)) {
             return;
@@ -66,9 +66,8 @@ const subscriber = async (app: INestApplication) => {
             tokens.map(({ token }) => token),
             {
               notification: {
-                title: event.name,
+                title: event.title,
                 body: event.content,
-                // redirectEndpoint: event.redirectEndpoint,
               },
               data: {
                 ...payload,

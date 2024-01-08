@@ -1,11 +1,14 @@
 export interface CommentResponse {
-  recipientIds: string[];
+  id: string;
+  recipientIds?: string[];
   content: string;
   senderId: string;
+  senderName: string;
   avatar: string;
 }
 
 export interface CommentFirebaseResponse {
+  id: string;
   content: string;
   senderId: string;
 }

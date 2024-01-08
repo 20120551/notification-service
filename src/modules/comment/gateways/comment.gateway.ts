@@ -1,4 +1,4 @@
-import { Inject, UseGuards } from '@nestjs/common';
+import { Inject, UseFilters, UseGuards } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -10,14 +10,18 @@ import {
 } from '@nestjs/websockets';
 import { AuthenticatedSocketGuard } from 'guards/authenticated.socket.guard';
 import { Server, Socket } from 'socket.io';
-import { IJwtService } from '../services';
+import { ICommentService, IJwtService } from '../services';
 import { UnauthorizedException } from 'utils/errors/domain.error';
-import { UseSocketCoursePolicies } from 'guards';
+import { CourseResponse, UseSocketCoursePolicies, UserResponse } from 'guards';
 import { UserCourseRole } from '@prisma/client';
-import { GET_COMMENTS } from '../resources/constant';
-import { GetCommentsDto } from '../resources/dto';
+import {
+  COMMENT_CREATED,
+  CREATE_COMMENT,
+  GET_COMMENTS,
+} from '../resources/constant';
+import { CreateCommentDto, GetCommentsDto } from '../resources/dto';
+import { Course, User } from 'utils/decorator/parameters';
 
-@UseGuards(AuthenticatedSocketGuard)
 @WebSocketGateway(8000)
 export class CommentGateway
   implements OnGatewayConnection, OnGatewayDisconnect
@@ -25,21 +29,20 @@ export class CommentGateway
   constructor(
     @Inject(IJwtService)
     private readonly _jwtService: IJwtService,
+    @Inject(ICommentService)
+    private readonly _commentService: ICommentService,
   ) {}
-  private readonly _clients = new Map<string, string>(); // socketId -> UserId
+  private readonly _clients = new Map<string, string>(); // UserId -> SocketId
 
   @WebSocketServer()
   server: Server;
 
   async handleConnection(client: Socket, ...args: any[]) {
-    if (!client.handshake.headers.authorization) {
-      throw new UnauthorizedException('Not found token in header');
-    }
+    const user = await this._jwtService.verify(
+      client.handshake.headers.authorization,
+    );
 
-    const token = client.handshake.headers.authorization.split(' ')[1];
-    const user = await this._jwtService.verify(token);
-
-    this._clients.set(client.id, user.userId);
+    this._clients.set(user.userId, client.id);
     console.log('connected', client.id);
   }
 
@@ -48,14 +51,41 @@ export class CommentGateway
     roles: [UserCourseRole.HOST, UserCourseRole.TEACHER],
   })
   @SubscribeMessage(GET_COMMENTS)
-  handleMessage(
+  async getComments(
     @MessageBody() data: GetCommentsDto,
     @ConnectedSocket() client: Socket,
   ) {
     // Handle received message
-    console.log(data);
-    this.server.to(this._clients.keys()[0]).emit('message1', data);
-    // this.server.emit('message1', data); // Broadcast the message to all connected clients
+    const comments = await this._commentService.getComments(data);
+    return comments;
+  }
+
+  @UseGuards(AuthenticatedSocketGuard)
+  @UseSocketCoursePolicies({
+    roles: [UserCourseRole.HOST, UserCourseRole.TEACHER],
+  })
+  @SubscribeMessage(CREATE_COMMENT)
+  async createComment(
+    @Course() course: CourseResponse,
+    @User() user: UserResponse,
+    @MessageBody() data: CreateCommentDto,
+    @ConnectedSocket() client: Socket,
+  ) {
+    // Handle received message
+    const { recipientIds, ...comment } =
+      await this._commentService.createComment(user, course.courseId, data);
+
+    // send comments
+    await this.server
+      .to(
+        recipientIds
+          .map((recipientId) => this._clients.get(recipientId))
+          .filter(Boolean),
+      )
+      .emit(COMMENT_CREATED, comment);
+
+    console.log('sending to ', recipientIds, 'succeed!');
+    return comment;
   }
 
   handleDisconnect(client: Socket) {
