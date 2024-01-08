@@ -34,11 +34,7 @@ export class AuthenticatedSocketGuard implements CanActivate {
       throw new UnauthorizedException('Invalid Token');
     }
 
-    request.user = {
-      ...userInfo,
-      userId: userInfo['sub'],
-      userMetadata: userInfo.appMetadata || {},
-    };
+    request.user = userInfo;
     return true;
   }
 }
