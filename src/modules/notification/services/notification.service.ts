@@ -79,7 +79,7 @@ export class NotificationService implements INotificationService {
 
       return {
         ...notification,
-        avatar: user.picture,
+        avatar: user.picture || '',
       };
     });
 

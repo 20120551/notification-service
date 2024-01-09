@@ -54,7 +54,7 @@ export class CommentService implements ICommentService {
 
       return {
         senderName: user.name,
-        avatar: user.picture,
+        avatar: user.picture || '',
         ...comment,
       };
     });
