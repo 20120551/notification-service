@@ -23,12 +23,17 @@ export class CourseRoleGuard implements CanActivate {
     const req = context.switchToHttp().getRequest<Request>();
     const { courseId } = req.body || req.params || req.query;
     const { userId } = req.user;
-    const { role } = await this._prismaService.userCourse.findFirst({
+    const course = await this._prismaService.userCourse.findFirst({
       where: {
         courseId,
         userId,
       },
     });
+
+    const role = course?.role;
+    if (!role) {
+      return false;
+    }
 
     const allowRoles = this._reflector.getAllAndOverride<any[]>(
       COURSE_ROLES_KEY,
