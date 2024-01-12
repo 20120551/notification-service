@@ -149,7 +149,7 @@ export class FirebaseFireStoreService implements IFirebaseFireStoreService {
     }
 
     const updatedDocs = await BPromise.map(doc.docs, async (doc) =>
-      doc.ref.set({ ...doc.data, ...data }),
+      doc.ref.set({ ...doc.data(), ...data }),
     );
 
     console.info(
