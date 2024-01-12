@@ -22,7 +22,7 @@ export class CourseRoleSocketGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToWs().getClient<Socket>();
-    const { gradeReviewId } = req.data;
+    const { gradeReviewId } = context.switchToWs().getData();
 
     if (!gradeReviewId) {
       throw new UnauthorizedException("you don't have permission");
@@ -67,16 +67,16 @@ export class CourseRoleSocketGuard implements CanActivate {
       [context.getHandler(), context.getClass()],
     );
 
+    req.course = {
+      courseId,
+    };
+
     if (
       allowRoles.flat().some((_role) => _role === role) ||
       userId === gradeReview.userId
     ) {
       return true;
     }
-
-    req.course = {
-      courseId,
-    };
 
     return false;
   }

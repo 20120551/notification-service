@@ -22,7 +22,7 @@ import {
 import { CreateCommentDto, GetCommentsDto } from '../resources/dto';
 import { Course, User } from 'utils/decorator/parameters';
 
-@WebSocketGateway(8000)
+@WebSocketGateway(8000, { cors: '*' })
 export class CommentGateway
   implements OnGatewayConnection, OnGatewayDisconnect
 {
@@ -46,10 +46,10 @@ export class CommentGateway
     console.log('connected', client.id);
   }
 
-  @UseGuards(AuthenticatedSocketGuard)
   @UseSocketCoursePolicies({
     roles: [UserCourseRole.HOST, UserCourseRole.TEACHER],
   })
+  @UseGuards(AuthenticatedSocketGuard)
   @SubscribeMessage(GET_COMMENTS)
   async getComments(
     @MessageBody() data: GetCommentsDto,
@@ -60,10 +60,10 @@ export class CommentGateway
     return comments;
   }
 
-  @UseGuards(AuthenticatedSocketGuard)
   @UseSocketCoursePolicies({
     roles: [UserCourseRole.HOST, UserCourseRole.TEACHER],
   })
+  @UseGuards(AuthenticatedSocketGuard)
   @SubscribeMessage(CREATE_COMMENT)
   async createComment(
     @Course() course: CourseResponse,
