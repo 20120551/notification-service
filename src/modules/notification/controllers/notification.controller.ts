@@ -6,12 +6,13 @@ import {
   HttpStatus,
   Inject,
   Post,
+  Put,
   UseGuards,
 } from '@nestjs/common';
 import { INotificationService } from '../services';
 import { AuthenticatedGuard, UserResponse } from 'guards';
 import { User } from 'utils/decorator/parameters';
-import { UpsertUserTokenDto } from '../resources/dto';
+import { UpsertNotificationDto, UpsertUserTokenDto } from '../resources/dto';
 
 @UseGuards(AuthenticatedGuard)
 @Controller('/api/notification')
@@ -46,6 +47,13 @@ export class NotificationController {
   @Get('notifications')
   async getUserNotification(@User() user: UserResponse) {
     const resp = await this._notificationService.getNotifications(user.userId);
+    return resp;
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Put('notifications/:id')
+  async maskAsRead(@Body() notification: UpsertNotificationDto[]) {
+    const resp = await this._notificationService.markAsRead(notification);
     return resp;
   }
 }

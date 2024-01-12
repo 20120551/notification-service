@@ -109,6 +109,7 @@ export class CommentService implements ICommentService {
       status: 'processing',
       title: 'New comment in grade review',
       isPublished: false,
+      isRead: false,
     };
 
     await this._fireStore.create('notifications', event);

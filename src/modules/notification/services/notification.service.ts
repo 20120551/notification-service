@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { IFirebaseFireStoreService } from 'utils/firebase';
 import { NotificationResponse, UserTokenResponse } from '../resources/response';
-import { UpsertUserTokenDto } from '../resources/dto';
+import { UpsertNotificationDto, UpsertUserTokenDto } from '../resources/dto';
 import { isEmpty } from 'lodash';
 import { PrismaService } from 'utils/prisma';
 import BPromise from 'bluebird';
@@ -14,6 +14,9 @@ export interface INotificationService {
     userId: string,
     data: UpsertUserTokenDto,
   ): Promise<UserTokenResponse>;
+  markAsRead(
+    notifications: UpsertNotificationDto[],
+  ): Promise<NotificationResponse[]>;
 }
 
 @Injectable()
@@ -23,6 +26,30 @@ export class NotificationService implements INotificationService {
     private readonly _fireStore: IFirebaseFireStoreService,
     protected readonly _prismaService: PrismaService,
   ) {}
+
+  async markAsRead(
+    notifications: UpsertNotificationDto[],
+  ): Promise<NotificationResponse[]> {
+    const resp = await BPromise.map(notifications, async (notification) => {
+      const res = await this._fireStore.update<
+        UpsertNotificationDto,
+        NotificationResponse
+      >(
+        'notifications',
+        { isRead: notification.isRead },
+        {
+          where: {
+            id: {
+              eq: notification.notificationId,
+            },
+          },
+        },
+      );
+      return res[0];
+    });
+
+    return resp;
+  }
 
   async upsertUserToken(
     userId: string,
