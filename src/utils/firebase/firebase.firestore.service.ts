@@ -155,7 +155,7 @@ export class FirebaseFireStoreService implements IFirebaseFireStoreService {
     console.info(
       updatedDocs.map((updatedDoc) => updatedDoc.writeTime.valueOf()),
     );
-    return this._selectData<R>(doc.docs);
+    return this._selectData<R>(doc.docs, data);
   }
 
   async del<T extends Record<string, any>>(
@@ -181,8 +181,12 @@ export class FirebaseFireStoreService implements IFirebaseFireStoreService {
 
   private _selectData<T extends Record<string, any>>(
     docs: QueryDocumentSnapshot[],
+    updatedDocs?: Record<string, any>,
   ) {
-    return docs.map((doc) => doc.data() as T);
+    if (!updatedDocs) {
+      return docs.map((doc) => doc.data() as T);
+    }
+    return docs.map((doc) => ({ ...doc.data(), ...updatedDocs }) as T);
   }
 
   private _getRef(collection: string, query: FireStoreQuery) {
