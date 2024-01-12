@@ -51,7 +51,7 @@ export class NotificationController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @Put('notifications/:id')
+  @Put('notifications')
   async maskAsRead(@Body() notification: UpsertNotificationDto[]) {
     const resp = await this._notificationService.markAsRead(notification);
     return resp;
