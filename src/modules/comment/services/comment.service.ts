@@ -80,6 +80,12 @@ export class CommentService implements ICommentService {
       },
       select: {
         userId: true,
+        userCourseGrade: {
+          select: {
+            studentId: true,
+            gradeTypeId: true,
+          },
+        },
       },
     });
 
@@ -105,7 +111,7 @@ export class CommentService implements ICommentService {
       recipientIds: recipientIds,
       content: `The grade composition has mark as finalized`,
       type: 'message',
-      redirectEndpoint: `/review/${createCommentDto.gradeReviewId}`,
+      redirectEndpoint: `/home/course/${courseId}#points?studentid=${requesterId.userCourseGrade.studentId}&gradeTypeId=${requesterId.userCourseGrade.gradeTypeId}&gradeReviewId=${createCommentDto.gradeReviewId}`,
       status: 'processing',
       title: 'New comment in grade review',
       isPublished: false,
