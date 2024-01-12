@@ -7,6 +7,7 @@ export interface NotificationResponse {
   isPublished: boolean;
   name: string;
   avatar: string;
+  isRead: boolean;
 }
 
 export interface UserTokenResponse {
