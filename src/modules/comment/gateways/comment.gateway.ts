@@ -21,6 +21,7 @@ import {
 } from '../resources/constant';
 import { CreateCommentDto, GetCommentsDto } from '../resources/dto';
 import { Course, User } from 'utils/decorator/parameters';
+import { isEmpty } from 'lodash';
 
 @WebSocketGateway({ cors: '*' })
 export class CommentGateway
@@ -75,14 +76,15 @@ export class CommentGateway
     const { recipientIds, ...comment } =
       await this._commentService.createComment(user, course.courseId, data);
 
+    const sendingIds = recipientIds
+      .map((recipientId) => this._clients.get(recipientId))
+      .filter(Boolean);
+
+    if (isEmpty(sendingIds)) {
+      return comment;
+    }
     // send comments
-    await this.server
-      .to(
-        recipientIds
-          .map((recipientId) => this._clients.get(recipientId))
-          .filter(Boolean),
-      )
-      .emit(COMMENT_CREATED, comment);
+    await this.server.to(sendingIds).emit(COMMENT_CREATED, comment);
 
     console.log('sending to ', recipientIds, 'succeed!');
     return comment;

@@ -4,8 +4,8 @@ const webpack = require("webpack");
 const lazyImports = [
   '@nestjs/microservices',
   '@nestjs/microservices/microservices-module',
-  '@nestjs/websockets',
-  '@nestjs/websockets/socket-module',
+  // '@nestjs/websockets',
+  // '@nestjs/websockets/socket-module',
 ];
 
 module.exports = {
@@ -20,9 +20,9 @@ module.exports = {
   ],
   module: {
     rules: [
-      {     
+      {
         test: /\.(ts)$/,
-        loader: "ts-loader", 
+        loader: "ts-loader",
         exclude: [
           [
             /node_modules/,
