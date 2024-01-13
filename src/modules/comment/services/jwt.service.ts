@@ -31,7 +31,6 @@ export class JwtService implements IJwtService {
 
     return {
       ...userInfo,
-      userId: userInfo['sub'],
       userMetadata: userInfo.appMetadata || {},
     };
   }

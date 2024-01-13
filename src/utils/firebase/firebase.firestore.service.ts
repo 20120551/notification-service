@@ -7,7 +7,7 @@ import {
   QueryDocumentSnapshot,
   getFirestore,
 } from 'firebase-admin/firestore';
-import { flatten, isEmpty, isObject, isUndefined } from 'lodash';
+import { flatten, isEmpty, isObject, isUndefined, sortBy } from 'lodash';
 import BPromise from 'bluebird';
 import { v4 as uuid } from 'uuid';
 import { credential } from 'firebase-admin';
@@ -133,6 +133,7 @@ export class FirebaseFireStoreService implements IFirebaseFireStoreService {
     await _ref.doc().create({
       id,
       ...data,
+      createdAt: new Date().toISOString(),
     });
 
     return { id, ...data };
@@ -184,9 +185,19 @@ export class FirebaseFireStoreService implements IFirebaseFireStoreService {
     updatedDocs?: Record<string, any>,
   ) {
     if (!updatedDocs) {
-      return docs.map((doc) => doc.data() as T);
+      return docs
+        .map((doc) => doc.data() as T)
+        .sort(
+          (d1, d2) =>
+            new Date(d1.createdAt).getTime() - new Date(d2.createdAt).getTime(),
+        );
     }
-    return docs.map((doc) => ({ ...doc.data(), ...updatedDocs }) as T);
+    return docs
+      .map((doc) => ({ ...doc.data(), ...updatedDocs }) as T)
+      .sort(
+        (d1, d2) =>
+          new Date(d1.createdAt).getTime() - new Date(d2.createdAt).getTime(),
+      );
   }
 
   private _getRef(collection: string, query: FireStoreQuery) {

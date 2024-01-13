@@ -44,7 +44,7 @@ export class CommentGateway
     );
 
     this._clients.set(user.userId, client.id);
-    console.log('connected', client.id);
+    console.log('connected', client.id, user.userId);
   }
 
   @UseSocketCoursePolicies({
@@ -81,6 +81,7 @@ export class CommentGateway
       .filter(Boolean);
 
     console.log('recipientIds', recipientIds);
+    console.log('clientIds', this._clients);
 
     if (isEmpty(sendingIds)) {
       console.log('empty sending ids');
