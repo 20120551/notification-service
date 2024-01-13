@@ -23,7 +23,7 @@ import { CreateCommentDto, GetCommentsDto } from '../resources/dto';
 import { Course, User } from 'utils/decorator/parameters';
 import { isEmpty } from 'lodash';
 
-@WebSocketGateway({ cors: '*' })
+@WebSocketGateway({ cors: true })
 export class CommentGateway
   implements OnGatewayConnection, OnGatewayDisconnect
 {
