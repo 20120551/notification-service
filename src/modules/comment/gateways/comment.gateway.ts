@@ -80,7 +80,10 @@ export class CommentGateway
       .map((recipientId) => this._clients.get(recipientId))
       .filter(Boolean);
 
+    console.log('recipientIds', recipientIds);
+
     if (isEmpty(sendingIds)) {
+      console.log('empty sending ids');
       return comment;
     }
     // send comments
